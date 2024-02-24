@@ -10,6 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
+import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
+import loginService from '@/services/loginService';
 
 export const LoginForm = () => {
 	const form = useForm<z.infer<typeof LoginSchema>>({
@@ -20,8 +23,20 @@ export const LoginForm = () => {
 		}
 	});
 
+	const mutation = useMutation({
+		mutationKey: ['create post'],
+		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
+		onError: (error) => {
+			console.log('Error: ', error.message);
+		},
+		onSuccess: (data) => {
+			console.log('Success!', data);
+
+		}
+	})
+
 	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-		console.log(values);
+		mutation.mutate(values);
 	}
 
 	return (
@@ -46,6 +61,7 @@ export const LoginForm = () => {
 									<FormControl>
 										<Input
 											{...field}
+											disabled={mutation.isPending}
 											placeholder='ivanovivan@example.com'
 											type='email'
 										/>
@@ -63,6 +79,7 @@ export const LoginForm = () => {
 									<FormControl>
 										<Input
 											{...field}
+											disabled={mutation.isPending}
 											placeholder='******'
 											type='password'
 										/>
@@ -72,14 +89,15 @@ export const LoginForm = () => {
 							)}
 						/>
 					</div>
-					<FormError message="Somethig went wrong!"/>
-					<FormSuccess message='Success!'/>
-						<Button
-							type='submit'
-							className='w-full'
-						>
-							Login
-						</Button>
+					{/* <FormError message="Somethig went wrong!" />
+					<FormSuccess message='Success!' /> */}
+					<Button
+						type='submit'
+						disabled={mutation.isPending}
+						className='w-full'
+					>
+						Login
+					</Button>
 				</form>
 			</Form>
 		</CardWrapper>
