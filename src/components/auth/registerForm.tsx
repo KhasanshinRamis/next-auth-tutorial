@@ -5,51 +5,52 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CardWrapper } from '@/components/auth/cardWrapper';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { LoginSchema } from '@/schemas';
+import { RegisterSchema } from '@/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import loginService from '@/services/loginService';
 import { useState } from 'react';
+import registerService from '@/services/registerService';
 
 
-export const LoginForm = () => {
-
+export const RegisterForm = () => {
+	
 	const queryClient = useQueryClient();
 
 	const [error, setError] = useState<string | Error | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
-	const form = useForm<z.infer<typeof LoginSchema>>({
-		resolver: zodResolver(LoginSchema),
+	const form = useForm<z.infer<typeof RegisterSchema>>({
+		resolver: zodResolver(RegisterSchema),
 		defaultValues: {
 			email: '',
 			password: '',
+			name: '',
 		},
 	});
 
 	const { data } = useQuery({
-		queryKey: ['create account'],
+		queryKey: ['register'],
 		select: ({ data }) => data
 	})
 
 	const mutation = useMutation({
-		mutationKey: ['login'],
-		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
+		mutationKey: ['register'],
+		mutationFn: (val: z.infer<typeof RegisterSchema>) => registerService.create(val),
 		onError: (error) => {
 			console.log('Error: ', error.message);
 			setError(error);
 		},
 		onSuccess: (data) => {
 			console.log('Success!', data);
-			queryClient.invalidateQueries({ queryKey: ['login'] });
+			queryClient.invalidateQueries({ queryKey: ['register'] });
 			setSuccess('Success!');
 		}
 	})
 
-	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+	const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
 		setError('');
 		setSuccess('');
 
@@ -58,9 +59,9 @@ export const LoginForm = () => {
 
 	return (
 		<CardWrapper
-			headerLabel='Welcome back'
-			backButtonLabel='Don`t have an account?'
-			backButtonHref='/auth/register'
+			headerLabel='Create an account'
+			backButtonLabel='Already have an account?'
+			backButtonHref='/auth/login'
 			showSocial
 		>
 			<Form {...form}>
@@ -69,6 +70,23 @@ export const LoginForm = () => {
 					className='space-y-6'
 				>
 					<div className='space-y-4'>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											disabled={mutation.isPending}
+											placeholder='Ivanov Ivan'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						<FormField
 							control={form.control}
 							name='email'
@@ -113,7 +131,7 @@ export const LoginForm = () => {
 						disabled={mutation.isPending}
 						className='w-full'
 					>
-						Login
+						Create an account
 					</Button>
 				</form>
 			</Form>

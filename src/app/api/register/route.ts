@@ -1,11 +1,11 @@
 import * as z from 'zod';
-import { LoginSchema } from '@/schemas';
+import { RegisterSchema } from '@/schemas';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
 	try {
 		const jsonData = await req.json();
-		const validatedFields = LoginSchema.safeParse(jsonData);
+		const validatedFields = RegisterSchema.safeParse(jsonData);
 
 		console.log(validatedFields);
 
