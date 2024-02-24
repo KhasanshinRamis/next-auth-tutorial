@@ -41,7 +41,7 @@ export const RegisterForm = () => {
 		mutationFn: (val: z.infer<typeof RegisterSchema>) => registerService.create(val),
 		onError: (error) => {
 			console.log('Error: ', error.message);
-			setError(error);
+			setError(error.message);
 		},
 		onSuccess: (data) => {
 			console.log('Success!', data);
