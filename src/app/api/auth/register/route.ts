@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import bcrypts from 'bcrypt';
+import bcrypt from "bcryptjs";
 import { db } from '@/lib/db';
 import { RegisterSchema } from '@/schemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
 		};
 
 		const { email, password, name } = validatedFields.data;
-		const hashedPassword = await bcrypts.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, 10);
 		const existingUser = await getUsersByEmail(email);
 
 		if (existingUser) {

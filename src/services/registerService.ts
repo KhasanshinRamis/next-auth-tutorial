@@ -4,9 +4,9 @@ import * as z from 'zod';
 
 
 class RegisterService {
-	private URL = 'http://localhost:3000/api/register';
+	private URL = 'http://localhost:3000/api/auth/register';
 
-	async create(values: z.infer<typeof RegisterSchema> ) {
+	async create(values: z.infer<typeof RegisterSchema>) {
 		return axios.post<z.infer<typeof RegisterSchema>>(this.URL, values);
 	};
 

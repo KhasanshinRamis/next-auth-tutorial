@@ -12,14 +12,15 @@ import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import loginService from '@/services/loginService';
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
+import { login } from '../../../actions/login';
 
 
 export const LoginForm = () => {
 
 	const queryClient = useQueryClient();
 
-	const [error, setError] = useState<string | Error | undefined>('');
+	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof LoginSchema>>({
@@ -32,16 +33,15 @@ export const LoginForm = () => {
 
 	const { data } = useQuery({
 		queryKey: ['create account'],
-		select: ({ data }) => data
+		select: ({ data }) => {
+			setError(data.error),
+			setSuccess(data.success)
+		}
 	})
 
 	const mutation = useMutation({
 		mutationKey: ['login'],
 		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
-		onError: (error) => {
-			console.log('Error: ', error.message);
-			setError(error);
-		},
 		onSuccess: (data) => {
 			console.log('Success!', data);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
@@ -55,6 +55,19 @@ export const LoginForm = () => {
 
 		mutation.mutate(values);
 	}
+	// const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+	// 	console.log(values);
+	// 	setError("");
+	// 	setSuccess("");
+
+	// 	startTransition(() => {
+	// 		login(values)
+	// 			.then((data) => {
+	// 				setError(data?.error);
+	// 				setSuccess(data?.success);
+	// 			});
+	// 	});
+	// }
 
 	return (
 		<CardWrapper
@@ -118,5 +131,5 @@ export const LoginForm = () => {
 				</form>
 			</Form>
 		</CardWrapper>
-	)
-}
+	);
+};
