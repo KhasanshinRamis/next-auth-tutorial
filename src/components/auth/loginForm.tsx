@@ -12,13 +12,15 @@ import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import loginService from '@/services/loginService';
-import { startTransition, useState } from 'react';
-import { login } from '../../../actions/login';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 
 export const LoginForm = () => {
 
+
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
@@ -46,6 +48,7 @@ export const LoginForm = () => {
 			console.log('Success!', data);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
 			setSuccess('Success!');
+			router.push('/settings');
 		}
 	})
 

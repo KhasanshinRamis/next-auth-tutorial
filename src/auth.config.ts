@@ -5,7 +5,7 @@ import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 
 import { LoginSchema } from "@/schemas";
-import { getUsersByEmail } from "@/data/user";
+import { getUserByEmail } from "@/data/user";
 
 export default {
 	providers: [
@@ -24,7 +24,7 @@ export default {
 				if (validatedFields.success) {
 					const { email, password } = validatedFields.data;
 
-					const user = await getUsersByEmail(email);
+					const user = await getUserByEmail(email);
 					if (!user || !user.password) return null;
 
 					const passwordsMatch = await bcrypt.compare(

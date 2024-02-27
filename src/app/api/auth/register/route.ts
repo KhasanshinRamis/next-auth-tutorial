@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from '@/lib/db';
 import { RegisterSchema } from '@/schemas';
 import { NextRequest, NextResponse } from 'next/server';
-import { getUsersByEmail } from '@/data/user';
+import { getUserByEmail } from '@/data/user';
 
 export const POST = async (req: NextRequest) => {
 	try {
@@ -16,7 +16,7 @@ export const POST = async (req: NextRequest) => {
 
 		const { email, password, name } = validatedFields.data;
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const existingUser = await getUsersByEmail(email);
+		const existingUser = await getUserByEmail(email);
 
 		if (existingUser) {
 			return NextResponse.json('Email already in use!', { statusText: 'Email already in use!', status: 400 });
