@@ -12,7 +12,7 @@ import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import loginService from '@/services/loginService';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 
@@ -20,9 +20,10 @@ export const LoginForm = () => {
 
 
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const searchParams = useSearchParams();
+	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with diferent provider!' : '';
 
-	const [error, setError] = useState<string | undefined>('');
+	const [error, setError] = useState<string | undefined | Error>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof LoginSchema>>({
@@ -37,9 +38,9 @@ export const LoginForm = () => {
 		queryKey: ['create account'],
 		select: ({ data }) => {
 			setError(data.error),
-			setSuccess(data.success)
+				setSuccess(data.success)
 		}
-	})
+	});
 
 	const mutation = useMutation({
 		mutationKey: ['login'],
@@ -48,16 +49,19 @@ export const LoginForm = () => {
 			console.log('Success!', data);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
 			setSuccess('Success!');
-			router.push('/settings');
+		},
+		onError: (error) => {
+			setError(error.message);
+			console.log(error.message);
 		}
-	})
+	});
 
 	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
 		setError('');
 		setSuccess('');
 
 		mutation.mutate(values);
-	}
+	};
 	// const onSubmit = (values: z.infer<typeof LoginSchema>) => {
 	// 	console.log(values);
 	// 	setError("");
@@ -70,7 +74,7 @@ export const LoginForm = () => {
 	// 				setSuccess(data?.success);
 	// 			});
 	// 	});
-	// }
+	// };
 
 	return (
 		<CardWrapper
@@ -122,7 +126,7 @@ export const LoginForm = () => {
 							)}
 						/>
 					</div>
-					<FormError message={error} />
+					<FormError message={error || urlError} />
 					<FormSuccess message={success} />
 					<Button
 						type='submit'

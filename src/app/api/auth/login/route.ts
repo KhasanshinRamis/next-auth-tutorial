@@ -21,8 +21,7 @@ export const POST = async (req: NextRequest) => {
 		await signIn("credentials", {
 			email,
 			password,
-			redirectTo: DEFAULT_LOGIN_REDIRECT,
-			redirect: true
+			redirectTo: DEFAULT_LOGIN_REDIRECT
 		});
 	} catch (error: any) {
 		if (error instanceof AuthError) {
