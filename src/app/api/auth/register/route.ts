@@ -4,6 +4,10 @@ import { db } from '@/lib/db';
 import { RegisterSchema } from '@/schemas';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail } from '@/data/user';
+import { genererateVerificationToken } from '@/lib/token';
+import { sendVerificationEmail } from '@/lib/mail';
+
+
 
 export const POST = async (req: NextRequest) => {
 	try {
@@ -31,8 +35,13 @@ export const POST = async (req: NextRequest) => {
 			}
 		})
 
-		// TODO: Send verification token email
+		
+		const verificationToken = await genererateVerificationToken(email);
+		await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
+
+		console.log('Confirmation email sent!');
+		console.log(verificationToken);
 		return NextResponse.json(newUser, { status: 200 });;
 
 	} catch (error: any) {

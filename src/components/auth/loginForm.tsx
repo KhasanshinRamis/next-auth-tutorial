@@ -35,10 +35,10 @@ export const LoginForm = () => {
 	});
 
 	const { data } = useQuery({
-		queryKey: ['create account'],
+		queryKey: ['login'],
 		select: ({ data }) => {
 			setError(data.error),
-				setSuccess(data.success)
+			setSuccess(data.success)
 		}
 	});
 

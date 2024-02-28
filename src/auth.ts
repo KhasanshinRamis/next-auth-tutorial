@@ -27,15 +27,16 @@ export const {
 		}
 	},
 	callbacks: {
-		// async signIn({ user }) {
-		// 	const existingUser = await getUserById(user.id);
+		async signIn({ user, account }) {
+			// Вход через гугол и гитхаб
+			if (account?.provider !== 'credentials') return true;
 
-		// 	if(!existingUser || !existingUser.emailVerified) {
-		// 		return false;
-		// 	}
+			const existingUser = await getUserById(user.id);
+			// Запрет на вход без верификации
+			if (!existingUser?.emailVerified) return false;
 
-		// 	return true;
-		// },
+			return true;
+		},
 		async session({ token, session }) {
 			if (token.sub && session.user) {
 				session.user.id = token.sub

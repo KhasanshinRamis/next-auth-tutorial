@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
+import { getUserByEmail } from '@/data/user';
+import { genererateVerificationToken } from '@/lib/token';
+import { sendVerificationEmail } from '@/lib/mail';
 
 export const POST = async (req: NextRequest) => {
 
@@ -16,6 +19,20 @@ export const POST = async (req: NextRequest) => {
 	}
 
 	const { email, password } = validatedFields.data;
+
+	const existingUser = await getUserByEmail(email);
+
+	if (!existingUser || !existingUser.email || !existingUser.password) {
+		return NextResponse.json("Email does not exist!", { status: 401 });
+	};
+
+	if(!existingUser.emailVerified) {
+		const verificationToken = await genererateVerificationToken(existingUser.email);
+		await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+		console.log('Success! Conformation email sent!');
+	};
+
 
 	try {
 		await signIn("credentials", {

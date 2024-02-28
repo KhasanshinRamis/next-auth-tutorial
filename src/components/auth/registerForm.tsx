@@ -33,15 +33,18 @@ export const RegisterForm = () => {
 
 	const { data } = useQuery({
 		queryKey: ['register'],
-		select: ({ data }) => data
-	})
+		select: ({ data }) => {
+			setError(data.error),
+			setSuccess(data.success)
+		}
+	});
 
 	const mutation = useMutation({
 		mutationKey: ['register'],
 		mutationFn: (val: z.infer<typeof RegisterSchema>) => registerService.create(val),
 		onError: (error) => {
-			console.log('Error: ', error.message);
 			setError(error.message);
+			console.log(error.message);
 		},
 		onSuccess: (data) => {
 			console.log('Success!', data);
