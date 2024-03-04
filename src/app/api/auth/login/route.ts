@@ -23,17 +23,18 @@ export const POST = async (req: NextRequest) => {
 	const existingUser = await getUserByEmail(email);
 
 	if (!existingUser || !existingUser.email || !existingUser.password) {
-		return NextResponse.json("Email does not exist!", { status: 401 });
+		return NextResponse.json("Email does not exist!", { status: 401, statusText: 'Email does not exist!' });
 	};
 
-	if(!existingUser.emailVerified) {
+
+	if (!existingUser.emailVerified) {
 		const verificationToken = await genererateVerificationToken(existingUser.email);
 		await sendVerificationEmail(verificationToken.email, verificationToken.token);
-
-		console.log('Success! Conformation email sent!');
+		
+		return NextResponse.json("Success! Conformation email sent!", { status: 200, statusText: 'Conformation email sent!' });
 	};
 
-
+	
 	try {
 		await signIn("credentials", {
 			email,

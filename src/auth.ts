@@ -28,12 +28,19 @@ export const {
 	},
 	callbacks: {
 		async signIn({ user, account }) {
+			console.log({
+				user,
+				account
+			});
+
 			// Вход через гугол и гитхаб
 			if (account?.provider !== 'credentials') return true;
 
 			const existingUser = await getUserById(user.id);
 			// Запрет на вход без верификации
 			if (!existingUser?.emailVerified) return false;
+
+			
 
 			return true;
 		},

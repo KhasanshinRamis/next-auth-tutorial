@@ -22,6 +22,8 @@ export const LoginForm = () => {
 	const queryClient = useQueryClient();
 	const searchParams = useSearchParams();
 	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with diferent provider!' : '';
+	const router = useRouter();
+
 
 	const [error, setError] = useState<string | undefined | Error>('');
 	const [success, setSuccess] = useState<string>('');
@@ -38,7 +40,7 @@ export const LoginForm = () => {
 		queryKey: ['login'],
 		select: ({ data }) => {
 			setError(data.error),
-			setSuccess(data.success)
+				setSuccess(data.success)
 		}
 	});
 
@@ -47,8 +49,10 @@ export const LoginForm = () => {
 		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
 		onSuccess: (data) => {
 			console.log('Success!', data);
+			console.log(data.statusText);
+			setSuccess(data.statusText);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
-			setSuccess('Success!');
+			router.push('/settings');
 		},
 		onError: (error) => {
 			setError(error.message);
