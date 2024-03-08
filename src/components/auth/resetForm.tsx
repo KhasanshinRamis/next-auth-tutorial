@@ -5,54 +5,46 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CardWrapper } from '@/components/auth/cardWrapper';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import Link from 'next/link';
-import { LoginSchema } from '@/schemas';
+import { ResetSchema } from '@/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import loginService from '@/services/loginService';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import resetService from '@/services/resetService';
 
 
-export const LoginForm = () => {
+export const ResetForm = () => {
 
 	const queryClient = useQueryClient();
-	const searchParams = useSearchParams();
-	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with diferent provider!' : '';
-	const router = useRouter();
-
 
 	const [error, setError] = useState<string | undefined | Error>('');
 	const [success, setSuccess] = useState<string>('');
 
-	const form = useForm<z.infer<typeof LoginSchema>>({
-		resolver: zodResolver(LoginSchema),
+	const form = useForm<z.infer<typeof ResetSchema>>({
+		resolver: zodResolver(ResetSchema),
 		defaultValues: {
 			email: '',
-			password: '',
 		},
 	});
 
 	const { data } = useQuery({
-		queryKey: ['login'],
+		queryKey: ['forgot'],
 		select: ({ data }) => {
 			setError(data.error),
-			setSuccess(data.success)
+				setSuccess(data.success)
 		}
 	});
 
 	const mutation = useMutation({
 		mutationKey: ['login'],
-		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
+		mutationFn: (val: z.infer<typeof ResetSchema>) => resetService.changePassword(val),
 		onSuccess: (data) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
 			setSuccess(data.statusText);
-			queryClient.invalidateQueries({ queryKey: ['login'] });
-			router.push('/settings');
+			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
 		onError: (error) => {
 			setError(error.message);
@@ -60,9 +52,10 @@ export const LoginForm = () => {
 		}
 	});
 
-	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+	const onSubmit = (values: z.infer<typeof ResetSchema>) => {
 		setError('');
 		setSuccess('');
+
 
 		mutation.mutate(values);
 	};
@@ -70,10 +63,9 @@ export const LoginForm = () => {
 
 	return (
 		<CardWrapper
-			headerLabel='Welcome back'
-			backButtonLabel='Don`t have an account?'
-			backButtonHref='/auth/register'
-			showSocial
+			headerLabel='Forgot your password?'
+			backButtonLabel='Back to login'
+			backButtonHref='/auth/login'
 		>
 			<Form {...form}>
 				<form
@@ -99,43 +91,15 @@ export const LoginForm = () => {
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											disabled={mutation.isPending}
-											placeholder='******'
-											type='password'
-										/>
-									</FormControl>
-									<Button
-										size='sm'
-										variant='link'
-										asChild
-										className='px-0 font-normal'
-									>
-										<Link href='/auth/reset'>
-											Forgot password?
-										</Link>
-									</Button>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 					</div>
-					<FormError message={error || urlError} />
+					<FormError message={error} />
 					<FormSuccess message={success} />
 					<Button
 						type='submit'
 						disabled={mutation.isPending}
 						className='w-full'
 					>
-						Login
+						Send reset email
 					</Button>
 				</form>
 			</Form>
