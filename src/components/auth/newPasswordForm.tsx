@@ -5,32 +5,36 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CardWrapper } from '@/components/auth/cardWrapper';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { ResetSchema } from '@/schemas';
+import { NewPasswordSchema } from '@/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import resetService from '@/services/resetService';
+import { useSearchParams } from 'next/navigation';
+import newPasswordService from '@/services/newPasswordService';
 
 
-export const ResetForm = () => {
+export const NewPasswordForm = () => {
 
 	const queryClient = useQueryClient();
+	const searchParams = useSearchParams();
+
+	const token = searchParams.get('token');
 
 	const [error, setError] = useState<string | undefined | Error>('');
 	const [success, setSuccess] = useState<string>('');
 
-	const form = useForm<z.infer<typeof ResetSchema>>({
-		resolver: zodResolver(ResetSchema),
+	const form = useForm<z.infer<typeof NewPasswordSchema>>({
+		resolver: zodResolver(NewPasswordSchema),
 		defaultValues: {
-			email: '',
+			password: '',
 		},
 	});
 
 	const { data } = useQuery({
-		queryKey: ['forgot'],
+		queryKey: ['new-password'],
 		select: ({ data }) => {
 			setError(data.error),
 				setSuccess(data.success)
@@ -38,13 +42,12 @@ export const ResetForm = () => {
 	});
 
 	const mutation = useMutation({
-		mutationKey: ['login'],
-		mutationFn: (val: z.infer<typeof ResetSchema>) => resetService.change(val),
+		mutationKey: ['new-password'],
+		mutationFn: (val: z.infer<typeof NewPasswordSchema>, token: string) => newPasswordService.change(val, token),
 		onSuccess: (data) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
 			setSuccess(data.statusText);
-			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
 		onError: (error) => {
 			setError(error.message);
@@ -52,18 +55,21 @@ export const ResetForm = () => {
 		}
 	});
 
-	const onSubmit = (values: z.infer<typeof ResetSchema>) => {
+	const onSubmit = (values: z.infer<typeof NewPasswordSchema>, token: string) => {
 		setError('');
 		setSuccess('');
 
 
-		mutation.mutate(values);
+		mutation.mutate({
+			values,
+			token
+		});
 	};
 
 
 	return (
 		<CardWrapper
-			headerLabel='Forgot your password?'
+			headerLabel='Enter a new password'
 			backButtonLabel='Back to login'
 			backButtonHref='/auth/login'
 		>
@@ -75,16 +81,16 @@ export const ResetForm = () => {
 					<div className='space-y-4'>
 						<FormField
 							control={form.control}
-							name='email'
+							name='password'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>Password</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
 											disabled={mutation.isPending}
-											placeholder='ivanovivan@example.com'
-											type='email'
+											placeholder='******'
+											type='password'
 										/>
 									</FormControl>
 									<FormMessage />
@@ -99,11 +105,10 @@ export const ResetForm = () => {
 						disabled={mutation.isPending}
 						className='w-full'
 					>
-						Send reset email
+						Reset password
 					</Button>
 				</form>
 			</Form>
 		</CardWrapper>
 	);
 };
-

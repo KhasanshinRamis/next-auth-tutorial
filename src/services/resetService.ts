@@ -5,7 +5,7 @@ import * as z from 'zod';
 class ResetService {
 	private URL = 'http://localhost:3000/api/auth/reset';
 
-	async changePassword(values: z.infer<typeof ResetSchema>) {
+	async change(values: z.infer<typeof ResetSchema>) {
 		return axios.post<z.infer<typeof ResetSchema>>(this.URL, values);
 	};
 }
