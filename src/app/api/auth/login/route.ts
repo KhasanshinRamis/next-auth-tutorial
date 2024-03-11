@@ -5,8 +5,12 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 import { getUserByEmail } from '@/data/user';
-import { genererateVerificationToken } from '@/lib/token';
-import { sendVerificationEmail } from '@/lib/mail';
+import { generateVerificationToken, generateTwoFactorToken } from '@/lib/token';
+import { sendVerificationEmail, sendTwoFactorTokenEmail } from '@/lib/mail';
+import { getTwoFactorTokenByEmail } from '@/data/twoFactorToken';
+import { db } from '@/lib/db';
+import { getTwoFactorConfirmationByUserId } from '@/data/twoFactorConfirmation';
+
 
 export const POST = async (req: NextRequest) => {
 
@@ -18,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json("Invalid fields!", { status: 401 });
 	}
 
-	const { email, password } = validatedFields.data;
+	const { email, password, code } = validatedFields.data;
 
 	const existingUser = await getUserByEmail(email);
 
@@ -28,13 +32,63 @@ export const POST = async (req: NextRequest) => {
 
 
 	if (!existingUser.emailVerified) {
-		const verificationToken = await genererateVerificationToken(existingUser.email);
+		const verificationToken = await generateVerificationToken(existingUser.email);
 		await sendVerificationEmail(verificationToken.email, verificationToken.token);
-		
+
+
 		return NextResponse.json("Success! Conformation email sent!", { status: 200, statusText: 'Conformation email sent!' });
 	};
 
-	
+	if (existingUser.isTwoFactorEnable && existingUser.email) {
+		if (code) {
+			const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
+
+			if (!twoFactorToken) {
+				return NextResponse.json("Invalid code!", { status: 401, statusText: 'Invalid code!' });
+			}
+
+			if (twoFactorToken.token !== code) {
+				return NextResponse.json("Invalid code!", { status: 401, statusText: 'Invalid code!' });
+			}
+
+			const hasExpired = new Date(twoFactorToken.expires) < new Date();
+
+			if (hasExpired) {
+				return NextResponse.json("Code expired!", { status: 401, statusText: 'Invalid code!' });
+			};
+
+			const hasTwoFactorToken = await db.twoFactorToken.findFirst({
+				where: { id: twoFactorToken.id }
+			});
+
+			if (hasTwoFactorToken) {
+				await db.twoFactorToken.delete({
+					where: { id: twoFactorToken.id }
+				});
+			};
+
+			const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
+
+			if (existingConfirmation) {
+				await db.twoFactorConfirmation.delete({
+					where: { id: existingConfirmation.id }
+				});
+			};
+
+			await db.twoFactorConfirmation.create({
+				data: {
+					userId: existingUser.id
+				}
+			});
+
+		} else {
+			const twoFactorToken = await generateTwoFactorToken(existingUser.email);
+			await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
+
+			return NextResponse.json({ twoFactor: true }, { status: 200, statusText: 'Send 2FA' });
+		}
+	};
+
 	try {
 		await signIn("credentials", {
 			email,

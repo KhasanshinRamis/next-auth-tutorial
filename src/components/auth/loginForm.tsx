@@ -24,8 +24,8 @@ export const LoginForm = () => {
 	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with diferent provider!' : '';
 	const router = useRouter();
 
-
-	const [error, setError] = useState<string | undefined | Error>('');
+	const [showTwoFactor, setShowTwoFactor] = useState<boolean>(false);
+	const [errorMessage, setErrorMessage] = useState<string | undefined | Error>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof LoginSchema>>({
@@ -36,13 +36,14 @@ export const LoginForm = () => {
 		},
 	});
 
-	const { data } = useQuery({
+	const { data, error } = useQuery({
 		queryKey: ['login'],
 		select: ({ data }) => {
-			setError(data.error),
-			setSuccess(data.success)
+			setErrorMessage(data.errorMessage),
+				setSuccess(data.success)
 		}
 	});
+
 
 	const mutation = useMutation({
 		mutationKey: ['login'],
@@ -50,23 +51,24 @@ export const LoginForm = () => {
 		onSuccess: (data) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
+			if (data.data.twoFactor) setShowTwoFactor(true);
 			setSuccess(data.statusText);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
 			router.push('/settings');
 		},
 		onError: (error) => {
-			setError(error.message);
+			form.reset();
+			setErrorMessage(error.message);
 			console.log(error.message);
 		}
 	});
 
 	const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-		setError('');
+		setErrorMessage('');
 		setSuccess('');
 
 		mutation.mutate(values);
 	};
-
 
 	return (
 		<CardWrapper
@@ -81,61 +83,86 @@ export const LoginForm = () => {
 					className='space-y-6'
 				>
 					<div className='space-y-4'>
-						<FormField
-							control={form.control}
-							name='email'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											disabled={mutation.isPending}
-											placeholder='ivanovivan@example.com'
-											type='email'
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name='password'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Password</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											disabled={mutation.isPending}
-											placeholder='******'
-											type='password'
-										/>
-									</FormControl>
-									<Button
-										size='sm'
-										variant='link'
-										asChild
-										className='px-0 font-normal'
-									>
-										<Link href='/auth/reset'>
-											Forgot password?
-										</Link>
-									</Button>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{showTwoFactor && (
+							<>
+								<FormField
+									control={form.control}
+									name='code'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Two Factor Code</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													disabled={mutation.isPending}
+													placeholder='123456'
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</>
+						)}
+						{!showTwoFactor && (
+							<>
+								<FormField
+									control={form.control}
+									name='email'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Email</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													disabled={mutation.isPending}
+													placeholder='ivanovivan@example.com'
+													type='email'
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name='password'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Password</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													disabled={mutation.isPending}
+													placeholder='******'
+													type='password'
+												/>
+											</FormControl>
+											<Button
+												size='sm'
+												variant='link'
+												asChild
+												className='px-0 font-normal'
+											>
+												<Link href='/auth/reset'>
+													Forgot password?
+												</Link>
+											</Button>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</>
+						)}
 					</div>
-					<FormError message={error || urlError} />
+					<FormError message={errorMessage || urlError} />
 					<FormSuccess message={success} />
 					<Button
 						type='submit'
 						disabled={mutation.isPending}
 						className='w-full'
 					>
-						Login
+						{showTwoFactor ? 'Confirm' : 'Login'}
 					</Button>
 				</form>
 			</Form>

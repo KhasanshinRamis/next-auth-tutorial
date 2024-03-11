@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { RegisterSchema } from '@/schemas';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail } from '@/data/user';
-import { genererateVerificationToken } from '@/lib/token';
+import { generateVerificationToken } from '@/lib/token';
 import { sendVerificationEmail } from '@/lib/mail';
 
 
@@ -26,7 +26,7 @@ export const POST = async (req: NextRequest) => {
 			return NextResponse.json('Email already in use!', { statusText: 'Email already in use!', status: 400 });
 		};
 
-		const newUser = await db.user.create({
+		await db.user.create({
 			data: {
 				name,
 				email,
@@ -36,13 +36,13 @@ export const POST = async (req: NextRequest) => {
 		})
 
 		
-		const verificationToken = await genererateVerificationToken(email);
+		const verificationToken = await generateVerificationToken(email);
 		await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
 
 		console.log('Confirmation email sent!');
 		console.log(verificationToken);
-		return NextResponse.json(newUser, { status: 200 });;
+		return NextResponse.json('Success! User create!', { status: 200 });;
 
 	} catch (error: any) {
 		return NextResponse.json({ error: error.message }, { status: 500 });

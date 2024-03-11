@@ -43,7 +43,7 @@ export const NewPasswordForm = () => {
 
 	const mutation = useMutation({
 		mutationKey: ['new-password'],
-		mutationFn: (val: z.infer<typeof NewPasswordSchema>, token: string) => newPasswordService.change(val, token),
+		mutationFn: (val: z.infer<typeof NewPasswordSchema>) => newPasswordService.change(val),
 		onSuccess: (data) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
@@ -55,15 +55,12 @@ export const NewPasswordForm = () => {
 		}
 	});
 
-	const onSubmit = (values: z.infer<typeof NewPasswordSchema>, token: string) => {
+	const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
 		setError('');
 		setSuccess('');
 
 
-		mutation.mutate({
-			values,
-			token
-		});
+		mutation.mutate({ values, token });
 	};
 
 
