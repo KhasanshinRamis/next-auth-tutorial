@@ -33,7 +33,7 @@ export default {
 					);
 
 					if (passwordsMatch) return user;
-				}
+				};
 
 				return null;
 			}
