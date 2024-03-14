@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json("Success! Conformation email sent!", { status: 200, statusText: 'Conformation email sent!' });
 	};
 
-	if (existingUser.isTwoFactorEnable && existingUser.email) {
+	if (existingUser.isTwoFactorEnabled && existingUser.email) {
 		if (code) {
 			const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
 

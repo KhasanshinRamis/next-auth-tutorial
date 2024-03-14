@@ -42,7 +42,7 @@ model User {
     emailVerified         DateTime?
     role                  UserRole               @default(USER)
     accounts              Account[]
-    isTwoFactorEnable     Boolean                @default(false)
+    isTwoFactorEnabled     Boolean                @default(false)
     twoFactorConfirmation TwoFactorConfirmation?
 }
 
@@ -81,3 +81,4 @@ model TwoFactorConfirmation {
 
 	@@unique([userId])
 }
+
