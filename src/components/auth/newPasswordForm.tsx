@@ -50,7 +50,7 @@ export const NewPasswordForm = () => {
 			setSuccess(data.statusText);
 		},
 		onError: (error) => {
-			setError(error.message);
+			setError(error.response.data.error);
 			console.log(error.message);
 		}
 	});

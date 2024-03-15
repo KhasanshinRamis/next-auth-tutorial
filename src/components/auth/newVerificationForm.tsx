@@ -8,7 +8,6 @@ import { BeatLoader } from 'react-spinners';
 import verificationService from '@/services/verificationService';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
-import axios from 'axios';
 
 
 export const NewVerificationForm = () => {
@@ -42,10 +41,10 @@ export const NewVerificationForm = () => {
 			console.log('Success!', data);
 			setSuccess(data.statusText);
 			setError(undefined);
-			
+
 		},
 		onError: (error) => {
-			setError(error.message);
+			setError(error.response.data.error);
 			console.log(error.message);
 			setSuccess(undefined);
 		}

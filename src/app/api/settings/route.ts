@@ -16,13 +16,13 @@ export const PUT = async (req: NextRequest) => {
 		const user = await currentUser();
 
 		if (!user) {
-			return NextResponse.json('Unauthorized!', { status: 403, statusText: 'Unathorized!' });
+			return NextResponse.json({ error: 'Unauthorized!' }, { status: 401, statusText: 'Unathorized!' });
 		}
 
 		const dbUser = await getUserById(user.id);
 
 		if (!dbUser) {
-			return NextResponse.json('Unauthorized!', { status: 403, statusText: 'Unathorized!' });
+			return NextResponse.json({ error: 'Unauthorized!' }, { status: 401, statusText: 'Unathorized!' });
 		}
 
 
@@ -37,7 +37,7 @@ export const PUT = async (req: NextRequest) => {
 			const existingUser = await getUserByEmail(body.email);
 
 			if (existingUser && existingUser.id !== user.id) {
-				return NextResponse.json('Email already in use!', { status: 403, statusText: 'Email already in use!' });
+				return NextResponse.json({ error: 'Email already in use!' }, { status: 401, statusText: 'Email already in use!' });
 			}
 
 			const verificationToken = await generateVerificationToken(body.email);
@@ -54,7 +54,7 @@ export const PUT = async (req: NextRequest) => {
 			);
 
 			if (!passwordMatch) {
-				return NextResponse.json('Incorrect password!', { status: 403, statusText: 'Incorrect password!' });
+				return NextResponse.json({ error: 'Incorrect password!' }, { status: 401, statusText: 'Incorrect password!' });
 			}
 
 			const hashedPassword = await bcrypt.hash(body.newPassword, 10);

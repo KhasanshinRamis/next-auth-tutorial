@@ -11,26 +11,26 @@ export const POST = async (req: NextRequest) => {
 		const { token } = body;
 
 		if (!token) {
-			console.log('No token provided');
+			return NextResponse.json({ error: "No token provided!" }, { status: 401, statusText: 'No token provided!' });
 		}
 
 		const existingToken = await getVerificationTokenByToken(token);
 
 		if (!existingToken) {
-			return NextResponse.json("Token does not exist!", { status: 401, statusText: 'Token does not exist!' });
+			return NextResponse.json({ error: "Token does not exist!" }, { status: 401, statusText: 'Token does not exist!' });
 		};
 
 		// если токен истёк
 		const hasExpired = new Date(existingToken.expires) < new Date();
 
 		if (hasExpired) {
-			return NextResponse.json("Token has expired!", { status: 401, statusText: 'Token has expired!' });
+			return NextResponse.json({ error: "Token has expired!" }, { status: 401, statusText: 'Token has expired!' });
 		};
 
 		const existingUser = await getUserByEmail(existingToken.email);
 
 		if (!existingUser) {
-			return NextResponse.json("Email does not exist!", { status: 401, statusText: 'Token has expired!' });
+			return NextResponse.json({ error: "Email does not exist!" }, { status: 401, statusText: 'Email does not exist!' });
 		};
 
 		await db.user.update({

@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
 
 
 	if (!validatedFields.success) {
-		return NextResponse.json("Invalid fields!", { status: 401 });
+		return NextResponse.json({error: "Invalid fields!"}, { status: 401, statusText: 'Invalid fields!' });
 	}
 
 	const { email, password, code } = validatedFields.data;
@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
 	const existingUser = await getUserByEmail(email);
 
 	if (!existingUser || !existingUser.email || !existingUser.password) {
-		return NextResponse.json("Email does not exist!", { status: 401, statusText: 'Email does not exist!' });
+		return NextResponse.json({error: "Email does not exist!"}, { status: 401, statusText: 'Email does not exist!' });
 	};
 
 
@@ -44,17 +44,17 @@ export const POST = async (req: NextRequest) => {
 			const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
 
 			if (!twoFactorToken) {
-				return NextResponse.json("Invalid code!", { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Invalid code!"}, { status: 401, statusText: 'Invalid code!' });
 			}
 
 			if (twoFactorToken.token !== code) {
-				return NextResponse.json("Invalid code!", { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Invalid code!"}, { status: 401, statusText: 'Invalid code!' });
 			}
 
 			const hasExpired = new Date(twoFactorToken.expires) < new Date();
 
 			if (hasExpired) {
-				return NextResponse.json("Code expired!", { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Code expired!"}, { status: 401, statusText: 'Invalid code!' });
 			};
 
 			const hasTwoFactorToken = await db.twoFactorToken.findFirst({
@@ -99,9 +99,9 @@ export const POST = async (req: NextRequest) => {
 		if (error instanceof AuthError) {
 			switch (error.type) {
 				case "CredentialsSignin":
-					return NextResponse.json("Invalid credentials!", { status: 401 });
+					return NextResponse.json({ error: "Invalid credentials!" }, { status: 401, statusText: "Invalid credentials!" });
 				default:
-					return NextResponse.json("Something went wrong!", { status: 401 });
+					return NextResponse.json({ error: "Something went wrong!" }, { status: 401, statusText: "Something went wrong!" });
 			}
 		}
 

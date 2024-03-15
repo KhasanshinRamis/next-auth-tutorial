@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
 		const validatedFields = RegisterSchema.safeParse(jsonData);
 
 		if (!validatedFields.success) {
-			return NextResponse.json('Invalidated!', { status: 400 });
+			return NextResponse.json({ error: 'Invalidated!'}, { status: 401, statusText: 'Invalidated!' });
 		};
 
 		const { email, password, name } = validatedFields.data;
@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
 		const existingUser = await getUserByEmail(email);
 
 		if (existingUser) {
-			return NextResponse.json('Email already in use!', { statusText: 'Email already in use!', status: 400 });
+			return NextResponse.json({ error: 'Email already in use!'}, {  status: 401, statusText: 'Email already in use!'});
 		};
 
 		await db.user.create({

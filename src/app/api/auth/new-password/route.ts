@@ -13,24 +13,24 @@ export const POST = async (req: NextRequest) => {
 
 		const validatedFields = NewPasswordSchema.safeParse(values);
 		if (!validatedFields.success) {
-			return NextResponse.json("Invalid fields!", { status: 401 });
+			return NextResponse.json({ error: "Invalid fields!"}, { status: 401, statusText: "Invalid fields!" });
 		};
 
 		const { password } = validatedFields.data;
 
 		const existingToken = await getPasswordResetTokenByToken(token);
 		if (!existingToken) {
-			return NextResponse.json("Invalid token!", { status: 401, statusText: 'Invalid token!' });
+			return NextResponse.json({ error: "Invalid token!"}, { status: 401, statusText: 'Invalid token!' });
 		};
 
 		const hasExpired = new Date(existingToken.expires) < new Date();
 		if (hasExpired) {
-			return NextResponse.json("Token has expired!", { status: 401, statusText: 'Token has expired!' });
+			return NextResponse.json({ error: "Token has expired!"}, { status: 401, statusText: 'Token has expired!' });
 		};
 
 		const existingUser = await getUserByEmail(existingToken.email);
 		if (!existingUser) {
-			return NextResponse.json("Email does not exist", { status: 401, statusText: 'Email does not exist!' });
+			return NextResponse.json({ error: "Email does not exist"}, { status: 401, statusText: 'Email does not exist!' });
 		};
 
 		const hashedPassword = await bcrypt.hash(password, 10);

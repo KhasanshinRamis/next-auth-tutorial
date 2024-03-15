@@ -19,7 +19,7 @@ export const ResetForm = () => {
 
 	const queryClient = useQueryClient();
 
-	const [error, setError] = useState<string | undefined | Error>('');
+	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof ResetSchema>>({
@@ -47,7 +47,7 @@ export const ResetForm = () => {
 			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
 		onError: (error) => {
-			setError(error.message);
+			setError(error.response.data.error);
 			console.log(error.message);
 		}
 	});

@@ -61,7 +61,7 @@ export default function SettingsPage() {
 		},
 		onError: (error) => {
 			console.log(error.message);
-			setErrorMessage(error.message);
+			setErrorMessage(error.response.data.error);
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });
 		}
 	});

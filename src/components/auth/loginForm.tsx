@@ -25,7 +25,7 @@ export const LoginForm = () => {
 	const router = useRouter();
 
 	const [showTwoFactor, setShowTwoFactor] = useState<boolean>(false);
-	const [errorMessage, setErrorMessage] = useState<string | undefined | Error>('');
+	const [errorMessage, setErrorMessage] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof LoginSchema>>({
@@ -58,8 +58,9 @@ export const LoginForm = () => {
 		},
 		onError: (error) => {
 			form.reset();
-			setErrorMessage(error.message);
 			console.log(error.message);
+			console.log(error.response.data);
+
 		}
 	});
 
@@ -69,6 +70,12 @@ export const LoginForm = () => {
 
 		mutation.mutate(values);
 	};
+
+	// if (mutation.error) {
+	// 	setErrorMessage(mutation.error);
+	// 	console.log(mutation.error)
+	// 	// console.log(mutation.error.data.response.error);
+	// }
 
 	return (
 		<CardWrapper

@@ -13,13 +13,14 @@ import { FormSuccess } from '@/components/formSuccess';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import registerService from '@/services/registerService';
+import { useRouter } from 'next/navigation';
 
 
 export const RegisterForm = () => {
-	
+
 	const queryClient = useQueryClient();
 
-	const [error, setError] = useState<string | Error | undefined>('');
+	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -35,7 +36,7 @@ export const RegisterForm = () => {
 		queryKey: ['register'],
 		select: ({ data }) => {
 			setError(data.error),
-			setSuccess(data.success)
+				setSuccess(data.success)
 		}
 	});
 
@@ -43,7 +44,7 @@ export const RegisterForm = () => {
 		mutationKey: ['register'],
 		mutationFn: (val: z.infer<typeof RegisterSchema>) => registerService.create(val),
 		onError: (error) => {
-			setError(error.message);
+			setError(error.response.data.error);
 			console.log(error.message);
 		},
 		onSuccess: (data) => {
