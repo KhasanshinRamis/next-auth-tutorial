@@ -55,7 +55,7 @@ export default function SettingsPage() {
 		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.success);
-			setSuccess(data.success);
+			setSuccess(data.data.success);
 			update();
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });
 		},

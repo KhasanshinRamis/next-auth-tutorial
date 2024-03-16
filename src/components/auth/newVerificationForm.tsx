@@ -41,7 +41,7 @@ export const NewVerificationForm = () => {
 		mutationFn: query,
 		onSuccess: (data: any) => {
 		  console.log('Success!', data);
-		  setSuccess(data.success);
+		  setSuccess(data.data.success);
 		},
 		onError: (error: any) => {
 		  setError(error.response?.data?.error || 'An error occurred');
