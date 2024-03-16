@@ -43,7 +43,7 @@ export const ResetForm = () => {
 		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
-			setSuccess(data.response.data.success);
+			setSuccess(data.success);
 			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
 		onError: (error: any) => {

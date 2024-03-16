@@ -54,8 +54,8 @@ export default function SettingsPage() {
 		mutationFn: (val: z.infer<typeof SettingsSchema>) => settingsService.update(val),
 		onSuccess: (data: any) => {
 			console.log('Success!', data);
-			console.log(data.response.data.success);
-			setSuccess(data.response.data.success);
+			console.log(data.success);
+			setSuccess(data.success);
 			update();
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });
 		},

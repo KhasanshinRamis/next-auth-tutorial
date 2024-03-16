@@ -53,7 +53,7 @@ export const LoginForm = () => {
 			console.log('Success!', data);
 			console.log(data.statusText);
 			if (data.data.twoFactor) setShowTwoFactor(true);
-			setSuccess(data.response.data.success);
+			setSuccess(data.success);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
 			if (callbackUrl) {
 				router.push(callbackUrl);

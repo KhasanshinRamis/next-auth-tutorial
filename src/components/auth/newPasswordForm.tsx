@@ -47,7 +47,7 @@ export const NewPasswordForm = () => {
 		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
-			setSuccess(data.response.data.success);
+			setSuccess(data.success);
 		},
 		onError: (error: any) => {
 			setError(error.response.data.error);
