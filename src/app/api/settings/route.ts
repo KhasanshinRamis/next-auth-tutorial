@@ -43,7 +43,7 @@ export const PUT = async (req: NextRequest) => {
 			const verificationToken = await generateVerificationToken(body.email);
 			await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
-			return NextResponse.json('Verification email sent!', { status: 200, statusText: 'Verification email sent!' });
+			return NextResponse.json({success: 'Verification email sent!'}, { status: 200, statusText: 'Verification email sent!' });
 
 		}
 
@@ -71,7 +71,7 @@ export const PUT = async (req: NextRequest) => {
 		});
 
 
-		return NextResponse.json('Settings Uptadted!', { status: 200, statusText: 'Settings Uptadted!' });
+		return NextResponse.json({success: 'Settings Uptadted!' }, { status: 200, statusText: 'Settings Uptadted!' });
 	} catch (error: any) {
 		return NextResponse.json(error.message, { status: 500, statusText: error.message });
 	}

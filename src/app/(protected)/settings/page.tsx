@@ -52,10 +52,10 @@ export default function SettingsPage() {
 	const mutation = useMutation({
 		mutationKey: ['settings-mutation'],
 		mutationFn: (val: z.infer<typeof SettingsSchema>) => settingsService.update(val),
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 			console.log('Success!', data);
-			console.log(data.statusText);
-			setSuccess(data.statusText);
+			console.log(data.response.data.success);
+			setSuccess(data.response.data.success);
 			update();
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });
 		},

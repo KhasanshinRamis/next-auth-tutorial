@@ -40,10 +40,10 @@ export const ResetForm = () => {
 	const mutation = useMutation({
 		mutationKey: ['login'],
 		mutationFn: (val: z.infer<typeof ResetSchema>) => resetService.change(val),
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
-			setSuccess(data.statusText);
+			setSuccess(data.response.data.success);
 			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
 		onError: (error: any) => {

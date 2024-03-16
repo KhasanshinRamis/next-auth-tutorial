@@ -47,10 +47,10 @@ export const RegisterForm = () => {
 			setError(error.response.data.error);
 			console.log(error.message);
 		},
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			queryClient.invalidateQueries({ queryKey: ['register'] });
-			setSuccess('Success!');
+			setSuccess(data.response.data.success);
 		}
 	})
 

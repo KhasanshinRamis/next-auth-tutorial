@@ -22,5 +22,5 @@ export const POST = async (req: NextRequest) => {
 
 	await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token);
 
-	return NextResponse.json('Reset email sent!', { status: 200, statusText: 'Reset email sent!' });
+	return NextResponse.json({ success: 'Reset email sent!' }, { status: 200, statusText: 'Reset email sent!' });
 }

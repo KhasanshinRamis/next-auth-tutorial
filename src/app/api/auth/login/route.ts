@@ -36,7 +36,7 @@ export const POST = async (req: NextRequest) => {
 		await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
 
-		return NextResponse.json("Success! Conformation email sent!", { status: 200, statusText: 'Conformation email sent!' });
+		return NextResponse.json({ success: "Success! Conformation email sent!"}, { status: 200, statusText: 'Conformation email sent!' });
 	};
 
 	if (existingUser.isTwoFactorEnabled && existingUser.email) {
@@ -85,7 +85,7 @@ export const POST = async (req: NextRequest) => {
 			const twoFactorToken = await generateTwoFactorToken(existingUser.email);
 			await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
 
-			return NextResponse.json({ twoFactor: true }, { status: 200, statusText: 'Send 2FA' });
+			return NextResponse.json({ twoFactor: true, success: 'Send 2FA' }, { status: 200, statusText: 'Send 2FA' });
 		}
 	};
 

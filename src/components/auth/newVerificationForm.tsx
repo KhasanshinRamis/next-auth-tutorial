@@ -39,9 +39,9 @@ export const NewVerificationForm = () => {
 	  const mutation = useMutation({
 		mutationKey: ['verification', token],
 		mutationFn: query,
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 		  console.log('Success!', data);
-		  setSuccess(data.statusText);
+		  setSuccess(data.response.data.success);
 		},
 		onError: (error: any) => {
 		  setError(error.response?.data?.error || 'An error occurred');

@@ -44,10 +44,10 @@ export const NewPasswordForm = () => {
 	const mutation = useMutation({
 		mutationKey: ['new-password'],
 		mutationFn: (val: z.infer<typeof NewPasswordSchema>) => newPasswordService.change(val),
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
-			setSuccess(data.statusText);
+			setSuccess(data.response.data.success);
 		},
 		onError: (error: any) => {
 			setError(error.response.data.error);

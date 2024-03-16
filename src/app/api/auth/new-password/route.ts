@@ -50,7 +50,7 @@ export const POST = async (req: NextRequest) => {
 			where: { id: existingToken.id },
 		});
 
-		return NextResponse.json("Password updated!", { status: 200, statusText: 'Password updated!' });
+		return NextResponse.json({success: "Password updated!"}, { status: 200, statusText: 'Password updated!' });
 	} catch (error: any) {
 		console.log(error.message);
 		return NextResponse.json({ error: error.message }, { status: 500 });

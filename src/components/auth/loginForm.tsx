@@ -49,11 +49,11 @@ export const LoginForm = () => {
 	const mutation = useMutation({
 		mutationKey: ['login'],
 		mutationFn: (val: z.infer<typeof LoginSchema>) => loginService.create(val),
-		onSuccess: (data) => {
+		onSuccess: (data: any) => {
 			console.log('Success!', data);
 			console.log(data.statusText);
 			if (data.data.twoFactor) setShowTwoFactor(true);
-			setSuccess(data.statusText);
+			setSuccess(data.response.data.success);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
 			if (callbackUrl) {
 				router.push(callbackUrl);
