@@ -9,7 +9,8 @@ export const LoginSchema = z.object({
 		message: "Password is required",
 	}),
 	code: z.optional(z.string()),
-	twoFactor: z.optional(z.boolean())
+	twoFactor: z.optional(z.boolean()),
+	callbackUrl: z.optional(z.string().nullable()),
 });
 
 export const RegisterSchema = z.object({
@@ -34,6 +35,7 @@ export const NewPasswordSchema = z.object({
 	password: z.string().min(6, {
 		message: "Minimum of 6 characters required",
 	}),
+	token: z.string(),
 });
 
 export const SettingsSchema = z.object({

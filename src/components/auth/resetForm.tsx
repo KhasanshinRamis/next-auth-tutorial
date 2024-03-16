@@ -46,7 +46,7 @@ export const ResetForm = () => {
 			setSuccess(data.statusText);
 			queryClient.invalidateQueries({ queryKey: ['forgot'] });
 		},
-		onError: (error) => {
+		onError: (error: any) => {
 			setError(error.response.data.error);
 			console.log(error.message);
 		}

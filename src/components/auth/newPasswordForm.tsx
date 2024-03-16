@@ -23,7 +23,7 @@ export const NewPasswordForm = () => {
 
 	const token = searchParams.get('token');
 
-	const [error, setError] = useState<string | undefined | Error>('');
+	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string>('');
 
 	const form = useForm<z.infer<typeof NewPasswordSchema>>({
@@ -49,7 +49,7 @@ export const NewPasswordForm = () => {
 			console.log(data.statusText);
 			setSuccess(data.statusText);
 		},
-		onError: (error) => {
+		onError: (error: any) => {
 			setError(error.response.data.error);
 			console.log(error.message);
 		}
@@ -60,7 +60,7 @@ export const NewPasswordForm = () => {
 		setSuccess('');
 
 
-		mutation.mutate({ values, token });
+		mutation.mutate({ ...values });
 	};
 
 

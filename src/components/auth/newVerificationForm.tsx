@@ -8,6 +8,7 @@ import { BeatLoader } from 'react-spinners';
 import verificationService from '@/services/verificationService';
 import { FormError } from '@/components/formError';
 import { FormSuccess } from '@/components/formSuccess';
+import { AxiosResponse } from 'axios';
 
 
 export const NewVerificationForm = () => {
@@ -22,39 +23,37 @@ export const NewVerificationForm = () => {
 		select: ({ data }) => data
 	});
 
-	const query = useCallback((token: string) => {
-		if (success || error) return;
-
+	const query = async (token: string | null): Promise<AxiosResponse<string | null, any>> => {
 		if (!token) {
-			setError('Missing token!');
-			return;
-		};
-
-		return verificationService.create(token);
-	}, [token, success, error]);
-
-
-	const mutation = useMutation({
+		  return Promise.reject(new Error('Invalid token'));
+		}
+		
+		try {
+		  const response = await verificationService.create(token);
+		  return response;
+		} catch (error) {
+		  return Promise.reject(error);
+		}
+	  };
+	  
+	  const mutation = useMutation({
 		mutationKey: ['verification', token],
 		mutationFn: query,
 		onSuccess: (data) => {
-			console.log('Success!', data);
-			setSuccess(data.statusText);
-			setError(undefined);
-
+		  console.log('Success!', data);
+		  setSuccess(data.statusText);
 		},
-		onError: (error) => {
-			setError(error.response.data.error);
-			console.log(error.message);
-			setSuccess(undefined);
+		onError: (error: any) => {
+		  setError(error.response?.data?.error || 'An error occurred');
+		  console.log(error.message);
 		}
-	});
+	  });
 
 
-	useEffect(() => {
-		mutation.mutate({ token: token });
-	}, []);
-
+	  useEffect(() => {
+		mutation.mutate(token);
+	  }, []);
+	  
 	return (
 		<CardWrapper
 			headerLabel="Confirming your verification"

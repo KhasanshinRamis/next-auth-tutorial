@@ -11,8 +11,8 @@ import { sendVerificationEmail } from '@/lib/mail';
 
 export const POST = async (req: NextRequest) => {
 	try {
-		const jsonData = await req.json();
-		const validatedFields = RegisterSchema.safeParse(jsonData);
+		const body = await req.json();
+		const validatedFields = RegisterSchema.safeParse(body);
 
 		if (!validatedFields.success) {
 			return NextResponse.json({ error: 'Invalidated!'}, { status: 401, statusText: 'Invalidated!' });

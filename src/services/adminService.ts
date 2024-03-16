@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 class AdminService {
-	private URL = 'http://localhost:3000/api/admin';
+	private URL = `${process.env.NEXT_PUBLIC_APP_URL}/api/admin`;
 
 	async get() {
 		return axios.get<UserRole>(this.URL);

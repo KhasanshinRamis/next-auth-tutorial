@@ -59,7 +59,7 @@ export default function SettingsPage() {
 			update();
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });
 		},
-		onError: (error) => {
+		onError: (error: any) => {
 			console.log(error.message);
 			setErrorMessage(error.response.data.error);
 			queryClient.invalidateQueries({ queryKey: ['settings-data'] });

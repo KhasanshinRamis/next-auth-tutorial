@@ -9,28 +9,32 @@ import { db } from '@/lib/db';
 export const POST = async (req: NextRequest) => {
 	try {
 		const body = await req.json();
-		const { values, token } = body;
 
-		const validatedFields = NewPasswordSchema.safeParse(values);
+		console.log(body);
+
+		const validatedFields = NewPasswordSchema.safeParse(body);
+		console.log('validatedFields', validatedFields);
+		console.log('validatedFields.success', validatedFields.success);
+		
 		if (!validatedFields.success) {
-			return NextResponse.json({ error: "Invalid fields!"}, { status: 401, statusText: "Invalid fields!" });
+			return NextResponse.json({ error: "Invalid fields!" }, { status: 401, statusText: "Invalid fields!" });
 		};
 
-		const { password } = validatedFields.data;
+		const { password, token } = validatedFields.data;
 
 		const existingToken = await getPasswordResetTokenByToken(token);
 		if (!existingToken) {
-			return NextResponse.json({ error: "Invalid token!"}, { status: 401, statusText: 'Invalid token!' });
+			return NextResponse.json({ error: "Invalid token!" }, { status: 401, statusText: 'Invalid token!' });
 		};
 
 		const hasExpired = new Date(existingToken.expires) < new Date();
 		if (hasExpired) {
-			return NextResponse.json({ error: "Token has expired!"}, { status: 401, statusText: 'Token has expired!' });
+			return NextResponse.json({ error: "Token has expired!" }, { status: 401, statusText: 'Token has expired!' });
 		};
 
 		const existingUser = await getUserByEmail(existingToken.email);
 		if (!existingUser) {
-			return NextResponse.json({ error: "Email does not exist"}, { status: 401, statusText: 'Email does not exist!' });
+			return NextResponse.json({ error: "Email does not exist" }, { status: 401, statusText: 'Email does not exist!' });
 		};
 
 		const hashedPassword = await bcrypt.hash(password, 10);

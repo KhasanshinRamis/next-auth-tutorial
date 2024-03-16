@@ -14,20 +14,20 @@ import { getTwoFactorConfirmationByUserId } from '@/data/twoFactorConfirmation';
 
 export const POST = async (req: NextRequest) => {
 
-	const jsonData = await req.json();
-	const validatedFields = LoginSchema.safeParse(jsonData);
+	const body = await req.json();
 
+	const validatedFields = LoginSchema.safeParse(body);
 
 	if (!validatedFields.success) {
-		return NextResponse.json({error: "Invalid fields!"}, { status: 401, statusText: 'Invalid fields!' });
+		return NextResponse.json({ error: "Invalid fields!" }, { status: 401, statusText: 'Invalid fields!' });
 	}
 
-	const { email, password, code } = validatedFields.data;
+	const { email, password, code, callbackUrl } = validatedFields.data;
 
 	const existingUser = await getUserByEmail(email);
 
 	if (!existingUser || !existingUser.email || !existingUser.password) {
-		return NextResponse.json({error: "Email does not exist!"}, { status: 401, statusText: 'Email does not exist!' });
+		return NextResponse.json({ error: "Email does not exist!" }, { status: 401, statusText: 'Email does not exist!' });
 	};
 
 
@@ -44,17 +44,17 @@ export const POST = async (req: NextRequest) => {
 			const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
 
 			if (!twoFactorToken) {
-				return NextResponse.json({ error: "Invalid code!"}, { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Invalid code!" }, { status: 401, statusText: 'Invalid code!' });
 			}
 
 			if (twoFactorToken.token !== code) {
-				return NextResponse.json({ error: "Invalid code!"}, { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Invalid code!" }, { status: 401, statusText: 'Invalid code!' });
 			}
 
 			const hasExpired = new Date(twoFactorToken.expires) < new Date();
 
 			if (hasExpired) {
-				return NextResponse.json({ error: "Code expired!"}, { status: 401, statusText: 'Invalid code!' });
+				return NextResponse.json({ error: "Code expired!" }, { status: 401, statusText: 'Invalid code!' });
 			};
 
 			const hasTwoFactorToken = await db.twoFactorToken.findFirst({
@@ -93,7 +93,7 @@ export const POST = async (req: NextRequest) => {
 		await signIn("credentials", {
 			email,
 			password,
-			redirectTo: DEFAULT_LOGIN_REDIRECT
+			redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
 		});
 	} catch (error: any) {
 		if (error instanceof AuthError) {

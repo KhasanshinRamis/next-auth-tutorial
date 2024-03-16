@@ -5,7 +5,7 @@ import * as z from 'zod';
 
 
 class SettingsService {
-	private URL = `http://localhost:3000/api/settings`;
+	private URL = `${process.env.NEXT_PUBLIC_APP_URL}/api/settings`;
 
 	async update(values: z.infer<typeof SettingsSchema>) {
 		return axios.put<z.infer<typeof SettingsSchema>>(this.URL, values)

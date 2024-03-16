@@ -21,6 +21,7 @@ export const LoginForm = () => {
 
 	const queryClient = useQueryClient();
 	const searchParams = useSearchParams();
+	const callbackUrl = searchParams.get('callbackUrl');
 	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with diferent provider!' : '';
 	const router = useRouter();
 
@@ -54,13 +55,15 @@ export const LoginForm = () => {
 			if (data.data.twoFactor) setShowTwoFactor(true);
 			setSuccess(data.statusText);
 			queryClient.invalidateQueries({ queryKey: ['login'] });
-			router.push('/settings');
+			if (callbackUrl) {
+				router.push(callbackUrl);
+			} else {
+				router.push(`/settings`);
+			}
 		},
-		onError: (error) => {
-			form.reset();
+		onError: (error: any) => {
 			console.log(error.message);
-			console.log(error.response.data);
-
+			setErrorMessage(error.response.data.error);
 		}
 	});
 
@@ -68,14 +71,9 @@ export const LoginForm = () => {
 		setErrorMessage('');
 		setSuccess('');
 
-		mutation.mutate(values);
+		mutation.mutate({ ...values });
 	};
 
-	// if (mutation.error) {
-	// 	setErrorMessage(mutation.error);
-	// 	console.log(mutation.error)
-	// 	// console.log(mutation.error.data.response.error);
-	// }
 
 	return (
 		<CardWrapper

@@ -43,7 +43,7 @@ export const RegisterForm = () => {
 	const mutation = useMutation({
 		mutationKey: ['register'],
 		mutationFn: (val: z.infer<typeof RegisterSchema>) => registerService.create(val),
-		onError: (error) => {
+		onError: (error: any) => {
 			setError(error.response.data.error);
 			console.log(error.message);
 		},
