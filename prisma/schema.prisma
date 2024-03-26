@@ -40,10 +40,12 @@ model User {
     image                 String?
     password              String?
     emailVerified         DateTime?
+    isTwoFactorEnabled    Boolean                @default(false)
+    twoFactorConfirmation TwoFactorConfirmation?
     role                  UserRole               @default(USER)
     accounts              Account[]
-    isTwoFactorEnabled     Boolean                @default(false)
-    twoFactorConfirmation TwoFactorConfirmation?
+    Post                  Post[]
+    Comment               Comment[]
 }
 
 model VerificationToken {
@@ -79,6 +81,38 @@ model TwoFactorConfirmation {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-	@@unique([userId])
+    @@unique([userId])
 }
 
+model Category {
+    id    String  @id @default(cuid()) @map("_id")
+    slug  String  @unique
+    title String
+    img   String?
+    Posts Post[]
+}
+
+model Post {
+    id           String    @id @default(cuid()) @map("_id")
+    createdAt    DateTime  @default(now())
+    slug         String    @unique
+    title        String
+    description  String
+    img          String?
+    views        Int       @default(0)
+    categorySlug String
+    category     Category  @relation(fields: [categorySlug], references: [slug])
+    userEmail    String
+    user         User      @relation(fields: [userEmail], references: [email])
+    comments     Comment[]
+}
+
+model Comment {
+    id          String   @id @default(cuid()) @map("_id")
+    createdAt   DateTime @default(now())
+    description String
+    userEmail   String
+    user        User     @relation(fields: [userEmail], references: [email])
+    postSlug    String
+    post        Post     @relation(fields: [postSlug], references: [slug])
+}
